@@ -12,38 +12,41 @@ const block_actions: BlockActionHandler<
 
   const approved = action.action_id === APPLY_ID;
 
+  // TODO: Send a confirmation message to an user who applied to the event
   // Send manager's response as a message to employee
-  const msgResponse = await client.chat.postMessage({
-    channel: body.function_data.inputs.employee,
-    blocks: [{
-      type: "context",
-      elements: [
-        {
-          type: "mrkdwn",
-          text:
-            `Your time off request from ${body.function_data.inputs.start_date} to ${body.function_data.inputs.end_date}` +
-            `${
-              body.function_data.inputs.reason
-                ? ` for ${body.function_data.inputs.reason}`
-                : ""
-            } was ${
-              approved ? " :white_check_mark: Approved" : ":x: Denied"
-            } by <@${body.user.id}>`,
-        },
-      ],
-    }],
-    text: `Your time off request was ${approved ? "approved" : "denied"}!`,
-  });
-  if (!msgResponse.ok) {
-    console.log(
-      "Error during requester update chat.postMessage!",
-      msgResponse.error,
-    );
-  }
+  // const msgResponse = await client.chat.postMessage({
+  //   channel: body.function_data.inputs.employee,
+  //   blocks: [{
+  //     type: "context",
+  //     elements: [
+  //       {
+  //         type: "mrkdwn",
+  //         text:
+  //           `Your time off request from ${body.function_data.inputs.start_date} to ${body.function_data.inputs.end_date}` +
+  //           `${
+  //             body.function_data.inputs.reason
+  //               ? ` for ${body.function_data.inputs.reason}`
+  //               : ""
+  //           } was ${
+  //             approved ? " :white_check_mark: Approved" : ":x: Denied"
+  //           } by <@${body.user.id}>`,
+  //       },
+  //     ],
+  //   }],
+  //   text: `Your time off request was ${approved ? "approved" : "denied"}!`,
+  // });
+  // if (!msgResponse.ok) {
+  //   console.log(
+  //     "Error during requester update chat.postMessage!",
+  //     msgResponse.error,
+  //   );
+  // }
 
-  // Update the manager's message to remove the buttons and reflect the approval
-  // state. Nice little touch to prevent further interactions with the buttons
-  // after one of them were clicked.
+  // TODO: Save the application to the database
+
+  // TODO: Update the advertisement message with the response to increment/decrement the number of participants
+  // Nice little touch to prevent further interactions with the buttons
+  // after capacity is full.
   const msgUpdate = await client.chat.update({
     channel: body.container.channel_id,
     ts: body.container.message_ts,

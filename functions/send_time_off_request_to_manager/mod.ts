@@ -4,6 +4,7 @@ import { SlackFunction } from "deno-slack-sdk/mod.ts";
 import BlockActionHandler from "./block_actions.ts";
 import { APPLY_ID, DENY_ID } from "./constants.ts";
 import timeOffRequestHeaderBlocks from "./blocks.ts";
+import { EventsDatastore } from "../../datastore/definition.ts";
 
 // Custom function that sends a message to create an event
 // The message includes some Block Kit with two
@@ -13,6 +14,28 @@ export default SlackFunction(
   async ({ inputs, token }) => {
     console.log("Forwarding the following event:", inputs);
     const client = SlackAPI(token, {});
+
+    // TODO: Save the event to the database
+    const uuid = crypto.randomUUID();
+    const response = await client.apps.datastore.put<
+      typeof EventsDatastore.definition
+    >({
+      datastore: "events",
+      item: {
+        id: uuid,
+        host: inputs.host,
+        startDate: inputs.start_date,
+        description: inputs.description,
+        isAnonymous: inputs.is_anonymous,
+        // maximumNumberOfParticipants: inputs.maximum_number_of_participants,
+        // minimumNumberOfParticipants: inputs.minimum_number_of_participants,
+        maximumNumberOfParticipants: 3,
+        minimumNumberOfParticipants: 1,
+      },
+    });
+    if (!response.ok) {
+      // TODO: error handling
+    }
 
     // Create a block of Block Kit elements composed of several header blocks
     // plus the interactive approve/deny buttons at the end
