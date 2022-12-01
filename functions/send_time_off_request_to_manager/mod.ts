@@ -1,17 +1,17 @@
-import { SendTimeOffRequestToManagerFunction } from "./definition.ts";
+import { SendMessageToAdvertiseAnEvent } from "./definition.ts";
 import { SlackAPI } from "deno-slack-api/mod.ts";
 import { SlackFunction } from "deno-slack-sdk/mod.ts";
 import BlockActionHandler from "./block_actions.ts";
-import { APPROVE_ID, DENY_ID } from "./constants.ts";
+import { APPLY_ID, DENY_ID } from "./constants.ts";
 import timeOffRequestHeaderBlocks from "./blocks.ts";
 
-// Custom function that sends a message to the user's manager asking
-// for approval for the time off request. The message includes some Block Kit with two
+// Custom function that sends a message to create an event
+// The message includes some Block Kit with two
 // interactive buttons: one to approve, and one to deny.
 export default SlackFunction(
-  SendTimeOffRequestToManagerFunction,
+  SendMessageToAdvertiseAnEvent,
   async ({ inputs, token }) => {
-    console.log("Forwarding the following time off request:", inputs);
+    console.log("Forwarding the following event:", inputs);
     const client = SlackAPI(token, {});
 
     // Create a block of Block Kit elements composed of several header blocks
@@ -24,9 +24,9 @@ export default SlackFunction(
           type: "button",
           text: {
             type: "plain_text",
-            text: "Approve",
+            text: "参加",
           },
-          action_id: APPROVE_ID, // <-- important! we will differentiate between buttons using these IDs
+          action_id: APPLY_ID, // <-- important! we will differentiate between buttons using these IDs
           style: "primary",
         },
         {
@@ -41,12 +41,12 @@ export default SlackFunction(
       ],
     }]);
 
-    // Send the message to the manager
+    // Send the message to a selected channel
     const msgResponse = await client.chat.postMessage({
-      channel: inputs.manager,
+      channel: inputs.channel,
       blocks,
       // Fallback text to use when rich media can't be displayed (i.e. notifications) as well as for screen readers
-      text: "A new time off request has been submitted",
+      text: "A new event has been created",
     });
 
     if (!msgResponse.ok) {
@@ -64,7 +64,7 @@ export default SlackFunction(
   // with different interactive Block Kit elements (like buttons!)
 ).addBlockActionsHandler(
   // listen for interactions with components with the following action_ids
-  [APPROVE_ID, DENY_ID],
+  [APPLY_ID, DENY_ID],
   // interactions with the above components get handled by the function below
   BlockActionHandler,
 );

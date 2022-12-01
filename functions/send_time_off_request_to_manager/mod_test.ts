@@ -25,7 +25,7 @@ mf.mock("POST@/api/chat.postMessage", async (req) => {
 
 const { createContext } = SlackFunctionTester("my-function");
 
-Deno.test("SendTimeOffRequestToManagerFunction runs successfully", async () => {
+Deno.test("SendMessageToAdvertiseAnEvent runs successfully", async () => {
   const inputs = {
     employee: "U11111",
     manager: "U22222",

@@ -1,16 +1,16 @@
 import { SlackAPI } from "deno-slack-api/mod.ts";
-import { SendTimeOffRequestToManagerFunction } from "./definition.ts";
+import { SendMessageToAdvertiseAnEvent } from "./definition.ts";
 import { BlockActionHandler } from "deno-slack-sdk/types.ts";
-import { APPROVE_ID } from "./constants.ts";
+import { APPLY_ID } from "./constants.ts";
 import timeOffRequestHeaderBlocks from "./blocks.ts";
 
 const block_actions: BlockActionHandler<
-  typeof SendTimeOffRequestToManagerFunction.definition
+  typeof SendMessageToAdvertiseAnEvent.definition
 > = async function ({ action, body, token }) {
   console.log("Incoming action handler invocation", action);
   const client = SlackAPI(token);
 
-  const approved = action.action_id === APPROVE_ID;
+  const approved = action.action_id === APPLY_ID;
 
   // Send manager's response as a message to employee
   const msgResponse = await client.chat.postMessage({

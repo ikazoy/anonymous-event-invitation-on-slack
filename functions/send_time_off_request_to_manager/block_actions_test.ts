@@ -1,6 +1,6 @@
 import * as mf from "https://deno.land/x/mock_fetch@0.3.0/mod.ts";
 import handler from "./block_actions.ts";
-import { APPROVE_ID } from "./constants.ts";
+import { APPLY_ID } from "./constants.ts";
 
 // Replaces globalThis.fetch with the mocked copy
 mf.install();
@@ -27,11 +27,11 @@ mf.mock("POST@/api/functions.completeSuccess", () => {
   });
 });
 
-Deno.test("SendTimeOffRequestToManagerFunction runs successfully", async () => {
+Deno.test("SendMessageToAdvertiseAnEvent runs successfully", async () => {
   const context = {
     action: {
       block_id: "approve-deny-buttons",
-      action_id: APPROVE_ID,
+      action_id: APPLY_ID,
       style: "primary",
       type: "button",
       text: {

@@ -1,46 +1,47 @@
 import { DefineFunction, Schema } from "deno-slack-sdk/mod.ts";
 
 /**
- * Custom function that sends a message to the user's manager asking for approval
- * for the time off request. The message includes some Block Kit with two interactive
- * buttons: one to approve, and one to deny.
+ * Custom function that sends a message to a channel to create a new event.
+ * The message includes some Block Kit with two interactive
+ * buttons: one to apply, and one to deny.
  */
-export const SendTimeOffRequestToManagerFunction = DefineFunction({
-  callback_id: "send_time_off_request_to_manager",
-  title: "Request Time Off",
-  description: "Sends your manager a time off request to approve or deny",
+export const SendMessageToAdvertiseAnEvent = DefineFunction({
+  callback_id: "send_message_to_advertise_an_event",
+  title: "Send Message to Advertise an Event",
+  description: "Send a message to a channel to create a new event",
+  // TODO: rename the dir
   source_file: "functions/send_time_off_request_to_manager/mod.ts",
   input_parameters: {
     properties: {
       interactivity: {
         type: Schema.slack.types.interactivity,
       },
-      employee: {
+      channel: {
+        type: Schema.slack.types.channel_id,
+      },
+      host: {
         type: Schema.slack.types.user_id,
         description: "The user requesting the time off",
       },
-      manager: {
-        type: Schema.slack.types.user_id,
-        description: "The manager approving the time off request",
-      },
       start_date: {
-        type: "slack#/types/date",
+        type: "slack#/types/timestamp",
         description: "Time off start date",
       },
-      end_date: {
-        type: "slack#/types/date",
-        description: "Time off end date",
-      },
-      reason: {
+      description: {
         type: Schema.types.string,
         description: "The reason for the time off request",
       },
+      is_anonymous: {
+        type: Schema.types.boolean,
+        description: "aaaa",
+      },
     },
     required: [
-      "employee",
-      "manager",
       "start_date",
-      "end_date",
+      "channel",
+      "description",
+      "is_anonymous",
+      "host",
       "interactivity",
     ],
   },

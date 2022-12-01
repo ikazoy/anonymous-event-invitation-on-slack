@@ -1,2 +1,2 @@
-export const APPROVE_ID = "approve_request";
+export const APPLY_ID = "application";
 export const DENY_ID = "deny_request";

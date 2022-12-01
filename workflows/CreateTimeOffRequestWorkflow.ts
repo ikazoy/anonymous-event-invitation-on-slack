@@ -1,5 +1,5 @@
 import { DefineWorkflow, Schema } from "deno-slack-sdk/mod.ts";
-import { SendTimeOffRequestToManagerFunction } from "../functions/send_time_off_request_to_manager/definition.ts";
+import { SendMessageToAdvertiseAnEvent } from "../functions/send_time_off_request_to_manager/definition.ts";
 
 /**
  * A Workflow composed of two steps: asking for time off details from the user
@@ -21,36 +21,39 @@ export const CreateTimeOffRequestWorkflow = DefineWorkflow({
   },
 });
 
-// Step 1: opening a form for the user to input their time off details.
+// Step 1: opening a form for the user to create an event
 const formData = CreateTimeOffRequestWorkflow.addStep(
   Schema.slack.functions.OpenForm,
   {
-    title: "Time Off Details",
+    title: "ランチ募集",
     interactivity: CreateTimeOffRequestWorkflow.inputs.interactivity,
-    submit_label: "Submit",
-    description: "Enter your time off request details",
+    submit_label: "募集開始！",
+    description: "お誘いを送ります",
     fields: {
-      required: ["manager", "start_date", "end_date"],
+      required: ["channel", "start_date", "description"],
       elements: [
         {
-          name: "manager",
-          title: "Manager",
-          type: Schema.slack.types.user_id,
+          name: "channel",
+          title: "募集するチャンネル",
+          type: Schema.slack.types.channel_id,
         },
         {
           name: "start_date",
-          title: "Start Date",
-          type: "slack#/types/date",
+          title: "開始日",
+          type: "slack#/types/timestamp",
         },
         {
-          name: "end_date",
-          title: "End Date",
-          type: "slack#/types/date",
-        },
-        {
-          name: "reason",
-          title: "Reason",
+          name: "description",
+          title: "説明",
+          default: "ランチ行こう！",
+          long: true,
           type: Schema.types.string,
+        },
+        {
+          name: "is_anonymous",
+          title: "匿名で募集する",
+          type: Schema.types.boolean,
+          default: true,
         },
       ],
     },
@@ -58,11 +61,12 @@ const formData = CreateTimeOffRequestWorkflow.addStep(
 );
 
 // Step 2: send time off request details along with approve/deny buttons to manager
-CreateTimeOffRequestWorkflow.addStep(SendTimeOffRequestToManagerFunction, {
+CreateTimeOffRequestWorkflow.addStep(SendMessageToAdvertiseAnEvent, {
   interactivity: formData.outputs.interactivity,
-  employee: CreateTimeOffRequestWorkflow.inputs.interactivity.interactor.id,
-  manager: formData.outputs.fields.manager,
+  // we can get user who make an action to a button
+  host: CreateTimeOffRequestWorkflow.inputs.interactivity.interactor.id,
+  channel: formData.outputs.fields.channel,
+  description: formData.outputs.fields.description,
   start_date: formData.outputs.fields.start_date,
-  end_date: formData.outputs.fields.end_date,
-  reason: formData.outputs.fields.reason,
+  is_anonymous: formData.outputs.fields.is_anonymous,
 });
