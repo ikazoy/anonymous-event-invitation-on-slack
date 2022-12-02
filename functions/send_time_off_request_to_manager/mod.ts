@@ -24,6 +24,7 @@ export default SlackFunction(
       item: {
         id: uuid,
         host: inputs.host,
+        createdAt: Math.floor(Date.now() / 1000),
         startDate: inputs.start_date,
         description: inputs.description,
         isAnonymous: inputs.is_anonymous,
@@ -34,6 +35,7 @@ export default SlackFunction(
     });
     if (!response.ok) {
       // TODO: error handling
+      console.error(response);
     }
 
     // Create a block of Block Kit elements composed of several header blocks
@@ -50,6 +52,7 @@ export default SlackFunction(
           },
           action_id: APPLY_ID, // <-- important! we will differentiate between buttons using these IDs
           style: "primary",
+          value: uuid,
         },
         {
           type: "button",

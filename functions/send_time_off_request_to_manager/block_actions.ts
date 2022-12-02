@@ -3,6 +3,7 @@ import { SendMessageToAdvertiseAnEvent } from "./definition.ts";
 import { BlockActionHandler } from "deno-slack-sdk/types.ts";
 import { APPLY_ID } from "./constants.ts";
 import timeOffRequestHeaderBlocks from "./blocks.ts";
+import { ApplicationsDatastore } from "../../datastore/definition.ts";
 
 const block_actions: BlockActionHandler<
   typeof SendMessageToAdvertiseAnEvent.definition
@@ -12,6 +13,8 @@ const block_actions: BlockActionHandler<
   const client = SlackAPI(token);
 
   const approved = action.action_id === APPLY_ID;
+  // event uuid is passed as "value" of the button action
+  const eventUuid = action.value;
 
   // TODO: Send a confirmation message to an user who applied to the event
   // Send manager's response as a message to employee
@@ -44,6 +47,22 @@ const block_actions: BlockActionHandler<
   // }
 
   // TODO: Save the application to the database
+  const applicationUuid = crypto.randomUUID();
+  const response = await client.apps.datastore.put<
+    typeof ApplicationsDatastore.definition
+  >({
+    datastore: "applications",
+    item: {
+      id: applicationUuid,
+      createdAt: Math.floor(Date.now() / 1000),
+      eventId: eventUuid,
+      applicant: body.user.id,
+    },
+  });
+  if (!response.ok) {
+    // TODO: error handling
+    console.error(response);
+  }
 
   // TODO: Update the advertisement message with the response to increment/decrement the number of participants
   // Nice little touch to prevent further interactions with the buttons
