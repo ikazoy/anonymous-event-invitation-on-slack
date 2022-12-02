@@ -8,6 +8,7 @@ const block_actions: BlockActionHandler<
   typeof SendMessageToAdvertiseAnEvent.definition
 > = async function ({ action, body, token }) {
   console.log("Incoming action handler invocation", action);
+  console.log("Incoming action handler invocation(body)", body);
   const client = SlackAPI(token);
 
   const approved = action.action_id === APPLY_ID;

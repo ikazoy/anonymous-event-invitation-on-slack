@@ -30,7 +30,12 @@ const formData = CreateTimeOffRequestWorkflow.addStep(
     submit_label: "募集開始！",
     description: "お誘いを送ります",
     fields: {
-      required: ["channel", "start_date", "description"],
+      required: [
+        "channel",
+        "start_date",
+        "description",
+        "minimum_number_of_participants",
+      ],
       elements: [
         {
           name: "channel",
@@ -48,6 +53,18 @@ const formData = CreateTimeOffRequestWorkflow.addStep(
           default: "ランチ行こう！",
           long: true,
           type: Schema.types.string,
+        },
+        {
+          name: "minimum_number_of_participants",
+          title: "最少催行人数",
+          default: 2,
+          type: Schema.types.number,
+        },
+        {
+          name: "maximum_number_of_participants",
+          title: "最大人数",
+          default: 4,
+          type: Schema.types.number,
         },
         {
           name: "is_anonymous",
@@ -69,4 +86,8 @@ CreateTimeOffRequestWorkflow.addStep(SendMessageToAdvertiseAnEvent, {
   description: formData.outputs.fields.description,
   start_date: formData.outputs.fields.start_date,
   is_anonymous: formData.outputs.fields.is_anonymous,
+  minimum_number_of_participants:
+    formData.outputs.fields.minimum_number_of_participants,
+  maximum_number_of_participants:
+    formData.outputs.fields.maximum_number_of_participants,
 });

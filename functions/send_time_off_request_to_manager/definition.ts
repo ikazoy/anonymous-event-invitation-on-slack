@@ -35,6 +35,14 @@ export const SendMessageToAdvertiseAnEvent = DefineFunction({
         type: Schema.types.boolean,
         description: "aaaa",
       },
+      minimum_number_of_participants: {
+        type: Schema.types.number,
+        description: "aaaa",
+      },
+      maximum_number_of_participants: {
+        type: Schema.types.number,
+        description: "aaaa",
+      },
     },
     required: [
       "start_date",
@@ -43,6 +51,7 @@ export const SendMessageToAdvertiseAnEvent = DefineFunction({
       "is_anonymous",
       "host",
       "interactivity",
+      "minimum_number_of_participants",
     ],
   },
   output_parameters: {

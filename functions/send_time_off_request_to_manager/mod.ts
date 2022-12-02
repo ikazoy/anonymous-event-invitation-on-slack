@@ -27,10 +27,9 @@ export default SlackFunction(
         startDate: inputs.start_date,
         description: inputs.description,
         isAnonymous: inputs.is_anonymous,
-        // maximumNumberOfParticipants: inputs.maximum_number_of_participants,
-        // minimumNumberOfParticipants: inputs.minimum_number_of_participants,
-        maximumNumberOfParticipants: 3,
-        minimumNumberOfParticipants: 1,
+        maximumNumberOfParticipants: inputs.maximum_number_of_participants ??
+          null,
+        minimumNumberOfParticipants: inputs.minimum_number_of_participants,
       },
     });
     if (!response.ok) {
