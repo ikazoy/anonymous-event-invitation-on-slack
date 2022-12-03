@@ -13,6 +13,12 @@ export const EventsDatastore = DefineDatastore({
     startDate: {
       type: Schema.slack.types.timestamp,
     },
+    status: {
+      // open
+      // closed
+      // cancelled
+      type: Schema.types.string,
+    },
     host: {
       type: Schema.slack.types.user_id,
     },

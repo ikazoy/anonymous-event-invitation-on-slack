@@ -46,7 +46,6 @@ const block_actions: BlockActionHandler<
   //   );
   // }
 
-  // TODO: Save the application to the database
   const applicationUuid = crypto.randomUUID();
   const response = await client.apps.datastore.put<
     typeof ApplicationsDatastore.definition

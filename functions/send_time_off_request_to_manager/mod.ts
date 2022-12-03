@@ -15,7 +15,6 @@ export default SlackFunction(
     console.log("Forwarding the following event:", inputs);
     const client = SlackAPI(token, {});
 
-    // TODO: Save the event to the database
     const uuid = crypto.randomUUID();
     const response = await client.apps.datastore.put<
       typeof EventsDatastore.definition
@@ -24,6 +23,7 @@ export default SlackFunction(
       item: {
         id: uuid,
         host: inputs.host,
+        status: "open",
         createdAt: Math.floor(Date.now() / 1000),
         startDate: inputs.start_date,
         description: inputs.description,
