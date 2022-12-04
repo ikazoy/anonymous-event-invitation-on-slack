@@ -3,8 +3,8 @@ import { SlackAPI } from "deno-slack-api/mod.ts";
 import { SlackFunction } from "deno-slack-sdk/mod.ts";
 import BlockActionHandler from "./block_actions.ts";
 import { APPLY_ID, DENY_ID } from "./constants.ts";
-import timeOffRequestHeaderBlocks from "./blocks.ts";
-import { EventsDatastore } from "../../datastore/definition.ts";
+import timeOffRequestHeaderBlocks, { allowButton } from "./blocks.ts";
+import { Storage } from "../../backend/storage.ts";
 
 // Custom function that sends a message to create an event
 // The message includes some Block Kit with two
@@ -13,58 +13,27 @@ export default SlackFunction(
   SendMessageToAdvertiseAnEvent,
   async ({ inputs, token }) => {
     console.log("Forwarding the following event:", inputs);
-    const client = SlackAPI(token, {});
+    const client = SlackAPI(token);
 
-    const uuid = crypto.randomUUID();
-    const response = await client.apps.datastore.put<
-      typeof EventsDatastore.definition
-    >({
-      datastore: "events",
-      item: {
-        id: uuid,
-        host: inputs.host,
-        status: "open",
-        createdAt: Math.floor(Date.now() / 1000),
-        startDate: inputs.start_date,
-        description: inputs.description,
-        isAnonymous: inputs.is_anonymous,
-        maximumNumberOfParticipants: inputs.maximum_number_of_participants ??
-          null,
-        minimumNumberOfParticipants: inputs.minimum_number_of_participants,
-      },
+    const eventUuid = crypto.randomUUID();
+    Storage.setEvent(token, {
+      id: eventUuid,
+      host: inputs.host,
+      status: "open",
+      createdAt: Math.floor(Date.now() / 1000),
+      startDate: inputs.start_date,
+      description: inputs.description,
+      isAnonymous: inputs.is_anonymous,
+      maximumNumberOfParticipants: inputs.maximum_number_of_participants ??
+        0,
+      minimumNumberOfParticipants: inputs.minimum_number_of_participants,
     });
-    if (!response.ok) {
-      // TODO: error handling
-      console.error(response);
-    }
 
     // Create a block of Block Kit elements composed of several header blocks
     // plus the interactive approve/deny buttons at the end
-    const blocks = timeOffRequestHeaderBlocks(inputs).concat([{
-      "type": "actions",
-      "block_id": "approve-deny-buttons",
-      "elements": [
-        {
-          type: "button",
-          text: {
-            type: "plain_text",
-            text: "参加",
-          },
-          action_id: APPLY_ID, // <-- important! we will differentiate between buttons using these IDs
-          style: "primary",
-          value: uuid,
-        },
-        {
-          type: "button",
-          text: {
-            type: "plain_text",
-            text: "Deny",
-          },
-          action_id: DENY_ID, // <-- important! we will differentiate between buttons using these IDs
-          style: "danger",
-        },
-      ],
-    }]);
+    const blocks = timeOffRequestHeaderBlocks(inputs).concat([
+      allowButton(eventUuid),
+    ]);
 
     // Send the message to a selected channel
     const msgResponse = await client.chat.postMessage({

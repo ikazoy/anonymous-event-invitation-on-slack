@@ -2,6 +2,7 @@
  * Based on user-inputted data, assemble a Block Kit approval message for easy
  * parsing by the approving manager.
  */
+import { APPLY_ID, DENY_ID } from "./constants.ts";
 // deno-lint-ignore no-explicit-any
 export default function timeOffRequestHeaderBlocks(inputs: any): any[] {
   return [
@@ -35,3 +36,22 @@ export default function timeOffRequestHeaderBlocks(inputs: any): any[] {
     },
   ];
 }
+
+export const allowButton = (eventId: string, disabled: boolean = true) => {
+  return {
+    "type": "actions",
+    "block_id": "approve-deny-buttons",
+    "elements": [
+      {
+        type: "button",
+        text: {
+          type: "plain_text",
+          text: "参加",
+        },
+        action_id: APPLY_ID, // <-- important! we will differentiate between buttons using these IDs
+        style: "primary",
+        value: eventId,
+      },
+    ],
+  };
+};

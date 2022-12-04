@@ -1,1 +1,11 @@
-{}
+{
+  "apps": {
+    "tech-touch": {
+      "name": "tech-touch",
+      "app_id": "A04DHP1ET5K",
+      "team_id": "T98QTLGUQ",
+      "IsDev": false
+    }
+  },
+  "default": "tech-touch"
+}
