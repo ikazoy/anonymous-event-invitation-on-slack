@@ -1,73 +1,9 @@
 import { SlackAPI } from "deno-slack-api/mod.ts";
 import { SendMessageToAdvertiseAnEvent } from "./definition.ts";
 import { BlockActionHandler } from "deno-slack-sdk/types.ts";
-import { APPLY_ID } from "./constants.ts";
-import timeOffRequestHeaderBlocks, {
-  applicationButton,
-  labelForOccupied,
-} from "./blocks.ts";
+import { generateMessage } from "./blocks.ts";
 import { Storage } from "../../backend/storage.ts";
 import { nowInUnixTimestampSec } from "../../lib/datetime.ts";
-
-const generateMessage = async (
-  token: string,
-  eventUuid: string,
-  inputs: any,
-) => {
-  console.log("generateMessage");
-  // Update the advertisement message with the response to increment/decrement the number of participants
-  // Nice little touch to prevent further interactions with the buttons
-  // after capacity is full.
-  const blockOfNumberOfParticipants = (numberOfParticipants: number) => {
-    return {
-      type: "section",
-      text: {
-        type: "mrkdwn",
-        text: `*${numberOfParticipants}人参加中*`,
-      },
-    };
-  };
-  const numberOfParticipants = await Storage.getNumberOfApplications(
-    token,
-    eventUuid,
-  );
-  const blockOfParticipantsName = (participantsName: string[]) => {
-    console.log(`participantsName:${participantsName}`);
-    return participantsName.length > 0
-      ? {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: `*参加者:* ${
-            participantsName.map((pN) => {
-              return `<@${pN}>`;
-            }).concat(" ")
-          }`,
-        },
-      }
-      : null;
-  };
-  const userIdsOfParticipants = await Storage.getParticipantsOfEvent(
-    token,
-    eventUuid,
-  );
-  const event = await Storage.getEvent(token, eventUuid);
-  console.log(`event:${JSON.stringify(event)}`);
-  const blocks = timeOffRequestHeaderBlocks(inputs);
-  blocks.push(blockOfNumberOfParticipants(numberOfParticipants));
-  if (event.minimumNumberOfParticipants <= numberOfParticipants) {
-    blocks.push(blockOfParticipantsName(userIdsOfParticipants));
-  }
-  const isOccupied = event.maximumNumberOfParticipants <= numberOfParticipants;
-  if (isOccupied) {
-    blocks.push(labelForOccupied(eventUuid));
-  } else {
-    blocks.push(applicationButton(eventUuid));
-  }
-
-  console.log(`blocks to update: ${JSON.stringify(blocks)}`);
-  return blocks;
-};
 
 export const moreOperationsHandler: BlockActionHandler<
   typeof SendMessageToAdvertiseAnEvent.definition

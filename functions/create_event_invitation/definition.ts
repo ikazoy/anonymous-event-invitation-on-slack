@@ -10,7 +10,7 @@ export const SendMessageToAdvertiseAnEvent = DefineFunction({
   title: "Send Message to Advertise an Event",
   description: "Send a message to a channel to create a new event",
   // TODO: rename the dir
-  source_file: "functions/send_time_off_request_to_manager/mod.ts",
+  source_file: "functions/create_event_invitation/mod.ts",
   input_parameters: {
     properties: {
       interactivity: {

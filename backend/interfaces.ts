@@ -6,6 +6,14 @@ const EventStatus = {
 
 type EventStatus = typeof EventStatus[keyof typeof EventStatus];
 
+const ApplicationStatus = {
+  Accepted: "accepted",
+  Cancelled: "cancelled",
+} as const;
+
+type ApplicationStatus =
+  typeof ApplicationStatus[keyof typeof ApplicationStatus];
+
 export interface Event {
   id: string;
   createdAt: number;
@@ -23,4 +31,5 @@ export interface Application {
   createdAt: number;
   eventId: Event["id"];
   applicant: string;
+  status: ApplicationStatus;
 }

@@ -1,6 +1,6 @@
 import { Manifest } from "deno-slack-sdk/mod.ts";
-import { CreateTimeOffRequestWorkflow } from "./workflows/CreateTimeOffRequestWorkflow.ts";
-import { SendMessageToAdvertiseAnEvent } from "./functions/send_time_off_request_to_manager/definition.ts";
+import { CreateEventInvitationWorkflow } from "./workflows/CreateEventInvitationWorkflow.ts";
+import { SendMessageToAdvertiseAnEvent } from "./functions/create_event_invitation/definition.ts";
 import {
   ApplicationsDatastore,
   EventsDatastore,
@@ -11,7 +11,7 @@ export default Manifest({
   description: "Ask your manager for some time off",
   icon: "assets/default_new_app_icon.png",
   datastores: [EventsDatastore, ApplicationsDatastore],
-  workflows: [CreateTimeOffRequestWorkflow],
+  workflows: [CreateEventInvitationWorkflow],
   functions: [SendMessageToAdvertiseAnEvent],
   outgoingDomains: [],
   botScopes: [

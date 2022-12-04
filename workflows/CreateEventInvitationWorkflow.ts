@@ -1,12 +1,12 @@
 import { DefineWorkflow, Schema } from "deno-slack-sdk/mod.ts";
-import { SendMessageToAdvertiseAnEvent } from "../functions/send_time_off_request_to_manager/definition.ts";
+import { SendMessageToAdvertiseAnEvent } from "../functions/create_event_invitation/definition.ts";
 
 /**
  * A Workflow composed of two steps: asking for time off details from the user
  * that started the workflow, and then forwarding the details along with two
  * buttons (approve and deny) to the user's manager.
  */
-export const CreateTimeOffRequestWorkflow = DefineWorkflow({
+export const CreateEventInvitationWorkflow = DefineWorkflow({
   callback_id: "create_time_off",
   title: "Request Time Off",
   description:
@@ -22,11 +22,11 @@ export const CreateTimeOffRequestWorkflow = DefineWorkflow({
 });
 
 // Step 1: opening a form for the user to create an event
-const formData = CreateTimeOffRequestWorkflow.addStep(
+const formData = CreateEventInvitationWorkflow.addStep(
   Schema.slack.functions.OpenForm,
   {
     title: "イベントを作成",
-    interactivity: CreateTimeOffRequestWorkflow.inputs.interactivity,
+    interactivity: CreateEventInvitationWorkflow.inputs.interactivity,
     submit_label: "募集開始！",
     description: "イベントを作成し、参加者を募ります",
     fields: {
@@ -82,10 +82,10 @@ const formData = CreateTimeOffRequestWorkflow.addStep(
 );
 
 // Step 2: send time off request details along with approve/deny buttons to manager
-CreateTimeOffRequestWorkflow.addStep(SendMessageToAdvertiseAnEvent, {
+CreateEventInvitationWorkflow.addStep(SendMessageToAdvertiseAnEvent, {
   interactivity: formData.outputs.interactivity,
   // we can get user who make an action to a button
-  host: CreateTimeOffRequestWorkflow.inputs.interactivity.interactor.id,
+  host: CreateEventInvitationWorkflow.inputs.interactivity.interactor.id,
   channel: formData.outputs.fields.channel,
   description: formData.outputs.fields.description,
   start_date: formData.outputs.fields.start_date,

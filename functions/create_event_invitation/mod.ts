@@ -6,7 +6,7 @@ import {
   moreOperationsHandler,
 } from "./block_actions.ts";
 import { APPLY_ID, DENY_ID } from "./constants.ts";
-import timeOffRequestHeaderBlocks, { applicationButton } from "./blocks.ts";
+import { generateMessage } from "./blocks.ts";
 import { Storage } from "../../backend/storage.ts";
 import { nowInUnixTimestampSec } from "../../lib/datetime.ts";
 
@@ -43,9 +43,8 @@ export default SlackFunction(
 
     // Create a block of Block Kit elements composed of several header blocks
     // plus the interactive approve/deny buttons at the end
-    const blocks = timeOffRequestHeaderBlocks(inputs).concat([
-      applicationButton(eventUuid),
-    ]);
+    const blocks = await generateMessage(token, eventUuid, inputs);
+    console.log(`blocks:${JSON.stringify(blocks)}`);
 
     // Send the message to a selected channel
     const msgResponse = await client.chat.postMessage({
