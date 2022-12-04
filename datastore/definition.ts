@@ -53,5 +53,10 @@ export const ApplicationsDatastore = DefineDatastore({
     applicant: {
       type: Schema.slack.types.user_id,
     },
+    status: {
+      // accepted
+      // cancelled
+      type: Schema.types.string,
+    },
   },
 });

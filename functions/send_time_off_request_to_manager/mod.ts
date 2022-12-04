@@ -1,7 +1,10 @@
 import { SendMessageToAdvertiseAnEvent } from "./definition.ts";
 import { SlackAPI } from "deno-slack-api/mod.ts";
 import { SlackFunction } from "deno-slack-sdk/mod.ts";
-import BlockActionHandler from "./block_actions.ts";
+import {
+  applicationButtonHandler,
+  moreOperationsHandler,
+} from "./block_actions.ts";
 import { APPLY_ID, DENY_ID } from "./constants.ts";
 import timeOffRequestHeaderBlocks, { applicationButton } from "./blocks.ts";
 import { Storage } from "../../backend/storage.ts";
@@ -35,6 +38,7 @@ export default SlackFunction(
       createdAt,
       eventId: eventUuid,
       applicant: inputs.host,
+      status: "accepted",
     });
 
     // Create a block of Block Kit elements composed of several header blocks
@@ -68,5 +72,8 @@ export default SlackFunction(
   // listen for interactions with components with the following action_ids
   [APPLY_ID, DENY_ID],
   // interactions with the above components get handled by the function below
-  BlockActionHandler,
+  applicationButtonHandler,
+).addBlockActionsHandler(
+  ["more_operations"],
+  moreOperationsHandler,
 );

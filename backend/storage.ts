@@ -1,6 +1,9 @@
 import { SlackAPI } from "deno-slack-api/mod.ts";
 import { Application, Event } from "./interfaces.ts";
-import { EventsDatastore } from "../datastore/definition.ts";
+import {
+  ApplicationsDatastore,
+  EventsDatastore,
+} from "../datastore/definition.ts";
 
 export class Storage {
   static getEvent = async (
@@ -48,41 +51,13 @@ export class Storage {
     }
   };
 
-  static getSubscriptions = async (
+  static cancelEvent = async (
     token: string,
-    channel_id: string,
-  ): Promise<Subscription[]> => {
-    // console.log(
-    //   `Executing getSubscriptions(token: ${token}, channel_id: ${channel_id})`,
-    // );
-    const client = SlackAPI(token, {});
-    const query_response = await client.apps.datastore.query({
-      datastore: "subscriptions_datastore",
-      expression: "#channel_id = :channel_id",
-      expression_attributes: { "#channel_id": "channel_id" },
-      expression_values: { ":channel_id": channel_id },
-    });
-
-    if (!query_response.ok) {
-      console.log(
-        `Error calling apps.datastore.query: ${query_response.error}`,
-      );
-      throw new Error(query_response.error);
-    }
-
-    // console.log(`Subscriptions retrieved: ${JSON.stringify(query_response)}`);
-    const subscriptions: Subscription[] = [];
-    if (query_response.items != null && query_response.items.length > 0) {
-      for (let x = 0; x < query_response.items.length; x++) {
-        subscriptions.push({
-          id: query_response.items[x].id,
-          channel_id: query_response.items[x].channel_id,
-          sobject: query_response.items[x].sobject,
-          filters: [], //JSON.parse(query_response.items[x].filters),
-        });
-      }
-    }
-    return subscriptions;
+    eventUuid: string,
+  ) => {
+    const event = await Storage.getEvent(token, eventUuid);
+    event.status = "cancelled";
+    await Storage.setEvent(token, event);
   };
 
   static getParticipantsOfEvent = async (
@@ -93,16 +68,12 @@ export class Storage {
     console.log(`eventUuid: ${eventUuid}`);
     const get_response = await client.apps.datastore.query({
       datastore: "applications",
-      expression: "#eventId = :eventId",
-      expression_attributes: { "#eventId": "eventId" },
-      expression_values: { ":eventId": eventUuid },
+      expression: "#eventId = :eventId and #status = :status",
+      expression_attributes: { "#eventId": "eventId", "#status": "status" },
+      expression_values: { ":eventId": eventUuid, ":status": "accepted" },
     });
 
-    const get_response2 = await client.apps.datastore.query({
-      datastore: "applications",
-    });
     console.log(`get_response: ${JSON.stringify(get_response)}`);
-    console.log(`get_response2: ${JSON.stringify(get_response2)}`);
 
     if (!get_response.ok) {
       console.log(
@@ -125,6 +96,34 @@ export class Storage {
     return (await this.getParticipantsOfEvent(token, eventUuid)).length;
   };
 
+  static getApplication = async (
+    token: string,
+    eventUuid: string,
+    userId: string,
+  ): Promise<Application> => {
+    const client = SlackAPI(token, {});
+
+    const get_response = await client.apps.datastore.query<
+      typeof ApplicationsDatastore.definition
+    >({
+      datastore: "applications",
+      expression: "#eventId = :eventId and #applicant = :applicant",
+      expression_attributes: {
+        "#eventId": "eventId",
+        "#applicant": "applicant",
+      },
+      expression_values: { ":eventId": eventUuid, ":applicant": userId },
+    });
+
+    if (!get_response.ok) {
+      console.log(`Error calling apps.datastore.get: ${get_response.error}`);
+      throw new Error(get_response.error);
+    }
+
+    console.log(`Application retrieved: ${JSON.stringify(get_response)}`);
+    return get_response.items[0];
+  };
+
   static setApplication = async (
     token: string,
     application: Application,
@@ -144,6 +143,16 @@ export class Storage {
       console.log(`Error calling apps.datastore.put: ${put_response.error}`);
       throw new Error(put_response.error);
     }
+  };
+
+  static cancelApplication = async (
+    token: string,
+    eventUuid: string,
+    userId: string,
+  ) => {
+    const application = await Storage.getApplication(token, eventUuid, userId);
+    application.status = "cancelled";
+    await Storage.setApplication(token, application);
   };
 
   static removeSubscription = async (

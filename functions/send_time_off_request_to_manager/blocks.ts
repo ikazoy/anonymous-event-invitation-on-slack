@@ -61,9 +61,16 @@ export default function timeOffRequestHeaderBlocks(inputs: any): any[] {
   ];
 }
 
-const OverFlowMenu = () => {
+const OverFlowMenu = (eventId: string) => {
+  const generateValue = (operationName: string) => {
+    return {
+      operationName,
+      eventId,
+    };
+  };
   return {
     "type": "overflow",
+    "action_id": "more_operations",
     "options": [
       {
         "text": {
@@ -71,7 +78,7 @@ const OverFlowMenu = () => {
           "emoji": true,
           "text": "参加を取りやめる",
         },
-        "value": "cancel-application",
+        "value": JSON.stringify(generateValue("cancel-application")),
       },
       {
         "text": {
@@ -79,7 +86,7 @@ const OverFlowMenu = () => {
           "emoji": true,
           "text": "イベントをキャンセルする",
         },
-        "value": "cancel-event",
+        "value": JSON.stringify(generateValue("cancel-event")),
       },
       {
         "text": {
@@ -87,20 +94,20 @@ const OverFlowMenu = () => {
           "emoji": true,
           "text": "イベントを編集する",
         },
-        "value": "edit-event",
+        "value": JSON.stringify(generateValue("edit-event")),
       },
     ],
   };
 };
 
-export const labelForOccupied = () => {
+export const labelForOccupied = (eventId: string) => {
   return {
     type: "section",
     text: {
       type: "mrkdwn",
       text: `*定員になりました*`,
     },
-    accessory: OverFlowMenu(),
+    accessory: OverFlowMenu(eventId),
   };
 };
 export const applicationButton = (eventId: string) => {
@@ -120,7 +127,7 @@ export const applicationButton = (eventId: string) => {
       },
       // TODO: add a block to show a modal for additional operations
       // e.g. for a host to cancel the event, for an applicant to cancel the application
-      OverFlowMenu(),
+      OverFlowMenu(eventId),
     ],
   };
 };

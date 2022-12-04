@@ -25,10 +25,10 @@ export const CreateTimeOffRequestWorkflow = DefineWorkflow({
 const formData = CreateTimeOffRequestWorkflow.addStep(
   Schema.slack.functions.OpenForm,
   {
-    title: "ランチ募集",
+    title: "イベントを作成",
     interactivity: CreateTimeOffRequestWorkflow.inputs.interactivity,
     submit_label: "募集開始！",
-    description: "お誘いを送ります",
+    description: "イベントを作成し、参加者を募ります",
     fields: {
       required: [
         "channel",
