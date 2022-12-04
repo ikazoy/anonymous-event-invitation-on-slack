@@ -4,6 +4,7 @@ import { BlockActionHandler } from "deno-slack-sdk/types.ts";
 import { APPLY_ID } from "./constants.ts";
 import timeOffRequestHeaderBlocks, { allowButton } from "./blocks.ts";
 import { Storage } from "../../backend/storage.ts";
+import { nowInUnixTimestampSec } from "../../lib/datetime.ts";
 
 const block_actions: BlockActionHandler<
   typeof SendMessageToAdvertiseAnEvent.definition
@@ -51,7 +52,7 @@ const block_actions: BlockActionHandler<
   const applicationUuid = crypto.randomUUID();
   await Storage.setApplication(token, {
     id: applicationUuid,
-    createdAt: Math.floor(Date.now() / 1000),
+    createdAt: nowInUnixTimestampSec(),
     eventId: eventUuid,
     applicant: body.user.id,
   });
@@ -102,14 +103,13 @@ const block_actions: BlockActionHandler<
   if (event.maximumNumberOfParticipants >= numberOfParticipants) {
     allowButton(eventUuid);
   } else {
-    allowButton(eventUuid, false);
+    allowButton(eventUuid);
   }
   blocks.push(blockOfNumberOfParticipants(numberOfParticipants));
   if (event.minimumNumberOfParticipants <= numberOfParticipants) {
     blocks.push(blockOfParticipantsName(userIdsOfParticipants));
   }
-  // TODO: add a block to show a modal for additional operations
-  // e.g. for a host to cancel the event, for an applicant to cancel the application
+
   console.log(`blocks to update: ${JSON.stringify(blocks)}`);
   const msgUpdate = await client.chat.update({
     channel: body.container.channel_id,

@@ -5,6 +5,7 @@ import BlockActionHandler from "./block_actions.ts";
 import { APPLY_ID, DENY_ID } from "./constants.ts";
 import timeOffRequestHeaderBlocks, { allowButton } from "./blocks.ts";
 import { Storage } from "../../backend/storage.ts";
+import { nowInUnixTimestampSec } from "../../lib/datetime.ts";
 
 // Custom function that sends a message to create an event
 // The message includes some Block Kit with two
@@ -20,7 +21,7 @@ export default SlackFunction(
       id: eventUuid,
       host: inputs.host,
       status: "open",
-      createdAt: Math.floor(Date.now() / 1000),
+      createdAt: nowInUnixTimestampSec(),
       startDate: inputs.start_date,
       description: inputs.description,
       isAnonymous: inputs.is_anonymous,

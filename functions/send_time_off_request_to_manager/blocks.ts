@@ -3,6 +3,7 @@
  * parsing by the approving manager.
  */
 import { APPLY_ID, DENY_ID } from "./constants.ts";
+import { convertUnixTimestampSec } from "../../lib/datetime.ts";
 // deno-lint-ignore no-explicit-any
 export default function timeOffRequestHeaderBlocks(inputs: any): any[] {
   return [
@@ -17,27 +18,50 @@ export default function timeOffRequestHeaderBlocks(inputs: any): any[] {
       type: "section",
       text: {
         type: "mrkdwn",
-        text: `*From:* <@${inputs.employee}>`,
+        text: `${
+          inputs.is_anonymous
+            ? "*主催者:* :question:ミステリー:question:"
+            : `*主催者:* <@${inputs.host}> `
+        }
+          `,
       },
     },
     {
       type: "section",
       text: {
         type: "mrkdwn",
-        text: `*Dates:* ${inputs.start_date} to ${inputs.end_date}`,
+        text: `*日時:* ${convertUnixTimestampSec(inputs.start_date)}`,
       },
     },
     {
       type: "section",
       text: {
         type: "mrkdwn",
-        text: `*Reason:* ${inputs.reason ? inputs.reason : "N/A"}`,
+        text: `*最少催行人数:* ${inputs.minimum_number_of_participants}名`,
+      },
+    },
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `*定員:* ${
+          inputs.maximum_number_of_participants
+            ? `${inputs.maximum_number_of_participants}名`
+            : "なし"
+        }`,
+      },
+    },
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `${inputs.description ? inputs.description : ""}`,
       },
     },
   ];
 }
 
-export const allowButton = (eventId: string, disabled: boolean = true) => {
+export const allowButton = (eventId: string) => {
   return {
     "type": "actions",
     "block_id": "approve-deny-buttons",
@@ -51,6 +75,37 @@ export const allowButton = (eventId: string, disabled: boolean = true) => {
         action_id: APPLY_ID, // <-- important! we will differentiate between buttons using these IDs
         style: "primary",
         value: eventId,
+      },
+      // TODO: add a block to show a modal for additional operations
+      // e.g. for a host to cancel the event, for an applicant to cancel the application
+      {
+        "type": "overflow",
+        "options": [
+          {
+            "text": {
+              "type": "plain_text",
+              "emoji": true,
+              "text": "参加を取りやめる",
+            },
+            "value": "cancel-application",
+          },
+          {
+            "text": {
+              "type": "plain_text",
+              "emoji": true,
+              "text": "イベントをキャンセルする",
+            },
+            "value": "cancel-event",
+          },
+          {
+            "text": {
+              "type": "plain_text",
+              "emoji": true,
+              "text": "イベントを編集する",
+            },
+            "value": "edit-event",
+          },
+        ],
       },
     ],
   };
