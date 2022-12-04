@@ -2,7 +2,10 @@ import { SlackAPI } from "deno-slack-api/mod.ts";
 import { SendMessageToAdvertiseAnEvent } from "./definition.ts";
 import { BlockActionHandler } from "deno-slack-sdk/types.ts";
 import { APPLY_ID } from "./constants.ts";
-import timeOffRequestHeaderBlocks, { allowButton } from "./blocks.ts";
+import timeOffRequestHeaderBlocks, {
+  applicationButton,
+  labelForOccupied,
+} from "./blocks.ts";
 import { Storage } from "../../backend/storage.ts";
 import { nowInUnixTimestampSec } from "../../lib/datetime.ts";
 
@@ -13,11 +16,27 @@ const block_actions: BlockActionHandler<
   console.log("Incoming action handler invocation(body)", body);
   const client = SlackAPI(token);
 
-  // TODO: check if the number of participants is within the limits
-
-  const approved = action.action_id === APPLY_ID;
   // event uuid is passed as "value" of the button action
   const eventUuid: string = action.value;
+
+  // TODO: check if the number of participants is within the limits
+
+  // TODO: check if the participant is already in the event
+  const participants = await Storage.getParticipantsOfEvent(
+    token,
+    eventUuid,
+  );
+  if (participants.includes(body.user.id)) {
+    client.chat.postEphemeral({
+      channel: body.container.channel_id,
+      user: body.user.id,
+      token,
+      text: "イベントに参加済みです。",
+    });
+    return {
+      completed: false,
+    };
+  }
 
   // TODO: Send a confirmation message to an user who applied to the event
   // Send manager's response as a message to employee
@@ -92,22 +111,22 @@ const block_actions: BlockActionHandler<
       }
       : null;
   };
-  const userIdsOfParticipants = await Storage.getUserIdsOfEvent(
+  const userIdsOfParticipants = await Storage.getParticipantsOfEvent(
     token,
     eventUuid,
   );
   const event = await Storage.getEvent(token, eventUuid);
-  console.log(`numberOfParticipants:${numberOfParticipants}`);
   console.log(`event:${JSON.stringify(event)}`);
   const blocks = timeOffRequestHeaderBlocks(body.function_data.inputs);
-  if (event.maximumNumberOfParticipants >= numberOfParticipants) {
-    allowButton(eventUuid);
-  } else {
-    allowButton(eventUuid);
-  }
   blocks.push(blockOfNumberOfParticipants(numberOfParticipants));
   if (event.minimumNumberOfParticipants <= numberOfParticipants) {
     blocks.push(blockOfParticipantsName(userIdsOfParticipants));
+  }
+  const isOccupied = event.maximumNumberOfParticipants <= numberOfParticipants;
+  if (isOccupied) {
+    blocks.push(labelForOccupied());
+  } else {
+    blocks.push(applicationButton(eventUuid));
   }
 
   console.log(`blocks to update: ${JSON.stringify(blocks)}`);
@@ -122,10 +141,13 @@ const block_actions: BlockActionHandler<
 
   // And now we can mark the function as 'completed' - which is required as
   // we explicitly marked it as incomplete in the main function handler.
-  await client.functions.completeSuccess({
-    function_execution_id: body.function_data.execution_id,
-    outputs: {},
-  });
+  // await client.functions.completeSuccess({
+  //   function_execution_id: body.function_data.execution_id,
+  //   outputs: {},
+  // });
+  return {
+    completed: false,
+  };
 };
 
 export default block_actions;

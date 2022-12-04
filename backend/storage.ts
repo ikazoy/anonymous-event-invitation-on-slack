@@ -85,7 +85,7 @@ export class Storage {
     return subscriptions;
   };
 
-  static getUserIdsOfEvent = async (
+  static getParticipantsOfEvent = async (
     token: string,
     eventUuid: string,
   ): Promise<string[]> => {
@@ -122,7 +122,7 @@ export class Storage {
       `Executing getNumberOfApplications(token: ${token}, eventUuid: ${eventUuid})`,
     );
 
-    return (await this.getUserIdsOfEvent(token, eventUuid)).length;
+    return (await this.getParticipantsOfEvent(token, eventUuid)).length;
   };
 
   static setApplication = async (

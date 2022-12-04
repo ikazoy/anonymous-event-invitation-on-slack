@@ -3,7 +3,7 @@ import { SlackAPI } from "deno-slack-api/mod.ts";
 import { SlackFunction } from "deno-slack-sdk/mod.ts";
 import BlockActionHandler from "./block_actions.ts";
 import { APPLY_ID, DENY_ID } from "./constants.ts";
-import timeOffRequestHeaderBlocks, { allowButton } from "./blocks.ts";
+import timeOffRequestHeaderBlocks, { applicationButton } from "./blocks.ts";
 import { Storage } from "../../backend/storage.ts";
 import { nowInUnixTimestampSec } from "../../lib/datetime.ts";
 
@@ -17,11 +17,12 @@ export default SlackFunction(
     const client = SlackAPI(token);
 
     const eventUuid = crypto.randomUUID();
-    Storage.setEvent(token, {
+    const createdAt = nowInUnixTimestampSec();
+    await Storage.setEvent(token, {
       id: eventUuid,
       host: inputs.host,
       status: "open",
-      createdAt: nowInUnixTimestampSec(),
+      createdAt,
       startDate: inputs.start_date,
       description: inputs.description,
       isAnonymous: inputs.is_anonymous,
@@ -29,11 +30,17 @@ export default SlackFunction(
         0,
       minimumNumberOfParticipants: inputs.minimum_number_of_participants,
     });
+    await Storage.setApplication(token, {
+      id: crypto.randomUUID(),
+      createdAt,
+      eventId: eventUuid,
+      applicant: inputs.host,
+    });
 
     // Create a block of Block Kit elements composed of several header blocks
     // plus the interactive approve/deny buttons at the end
     const blocks = timeOffRequestHeaderBlocks(inputs).concat([
-      allowButton(eventUuid),
+      applicationButton(eventUuid),
     ]);
 
     // Send the message to a selected channel

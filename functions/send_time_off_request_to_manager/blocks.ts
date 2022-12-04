@@ -61,7 +61,49 @@ export default function timeOffRequestHeaderBlocks(inputs: any): any[] {
   ];
 }
 
-export const allowButton = (eventId: string) => {
+const OverFlowMenu = () => {
+  return {
+    "type": "overflow",
+    "options": [
+      {
+        "text": {
+          "type": "plain_text",
+          "emoji": true,
+          "text": "参加を取りやめる",
+        },
+        "value": "cancel-application",
+      },
+      {
+        "text": {
+          "type": "plain_text",
+          "emoji": true,
+          "text": "イベントをキャンセルする",
+        },
+        "value": "cancel-event",
+      },
+      {
+        "text": {
+          "type": "plain_text",
+          "emoji": true,
+          "text": "イベントを編集する",
+        },
+        "value": "edit-event",
+      },
+    ],
+  };
+};
+
+export const labelForOccupied = () => {
+  return {
+    type: "section",
+    text: {
+      type: "mrkdwn",
+      text: `*定員になりました*`,
+    },
+    accessory: OverFlowMenu(),
+  };
+};
+export const applicationButton = (eventId: string) => {
   return {
     "type": "actions",
     "block_id": "approve-deny-buttons",
@@ -78,35 +120,7 @@ export const allowButton = (eventId: string) => {
       },
       // TODO: add a block to show a modal for additional operations
       // e.g. for a host to cancel the event, for an applicant to cancel the application
-      {
-        "type": "overflow",
-        "options": [
-          {
-            "text": {
-              "type": "plain_text",
-              "emoji": true,
-              "text": "参加を取りやめる",
-            },
-            "value": "cancel-application",
-          },
-          {
-            "text": {
-              "type": "plain_text",
-              "emoji": true,
-              "text": "イベントをキャンセルする",
-            },
-            "value": "cancel-event",
-          },
-          {
-            "text": {
-              "type": "plain_text",
-              "emoji": true,
-              "text": "イベントを編集する",
-            },
-            "value": "edit-event",
-          },
-        ],
-      },
+      OverFlowMenu(),
     ],
   };
 };
