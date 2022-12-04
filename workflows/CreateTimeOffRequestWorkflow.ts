@@ -35,6 +35,7 @@ const formData = CreateTimeOffRequestWorkflow.addStep(
         "start_date",
         "description",
         "minimum_number_of_participants",
+        "is_anonymous",
       ],
       elements: [
         {
@@ -63,12 +64,15 @@ const formData = CreateTimeOffRequestWorkflow.addStep(
         {
           name: "maximum_number_of_participants",
           title: "最大人数",
+          description: "参加者が最大人数に到達すると募集を終了します",
           default: 4,
           type: Schema.types.number,
         },
         {
           name: "is_anonymous",
-          title: "匿名で募集する",
+          title: ":grey_question:匿名で募集する:grey_question:",
+          description: `
+          Yes: 最少催行人数に到達するまで主催者名、参加者名は表示されません\nNo: 主催者名、参加者名が表示されます`,
           type: Schema.types.boolean,
           default: true,
         },
