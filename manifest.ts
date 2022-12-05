@@ -7,9 +7,9 @@ import {
 } from "./datastore/definition.ts";
 
 export default Manifest({
-  name: "focused-gorilla-402",
-  description: "Ask your manager for some time off",
-  icon: "assets/default_new_app_icon.png",
+  name: "Pecorino",
+  description: "ぺこりーの 気遣い不要で レッツご飯",
+  icon: "assets/icon.png",
   datastores: [EventsDatastore, ApplicationsDatastore],
   workflows: [CreateEventInvitationWorkflow],
   functions: [SendMessageToAdvertiseAnEvent],
@@ -20,5 +20,6 @@ export default Manifest({
     "chat:write.public",
     "datastore:read",
     "datastore:write",
+    "app_mentions:read",
   ],
 });

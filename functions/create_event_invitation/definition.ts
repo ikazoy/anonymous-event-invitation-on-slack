@@ -25,11 +25,11 @@ export const SendMessageToAdvertiseAnEvent = DefineFunction({
       },
       start_date: {
         type: "slack#/types/timestamp",
-        description: "Time off start date",
+        description: "Start date of an event",
       },
       description: {
         type: Schema.types.string,
-        description: "The reason for the time off request",
+        description: "description of an event",
       },
       is_anonymous: {
         type: Schema.types.boolean,

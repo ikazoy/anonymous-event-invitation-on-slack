@@ -7,10 +7,10 @@ import { SendMessageToAdvertiseAnEvent } from "../functions/create_event_invitat
  * buttons (approve and deny) to the user's manager.
  */
 export const CreateEventInvitationWorkflow = DefineWorkflow({
-  callback_id: "create_time_off",
-  title: "Request Time Off",
+  callback_id: "create_event",
+  title: "Create an event invitation",
   description:
-    "Create a time off request and send it for approval to your manager",
+    "Create an invitation for an event so that everyone can join it.",
   input_parameters: {
     properties: {
       interactivity: {

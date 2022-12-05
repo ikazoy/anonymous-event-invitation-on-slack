@@ -1,10 +1,10 @@
 import { Trigger } from "deno-slack-api/types.ts";
 
-const trigger: Trigger = {
+export const trigger: Trigger = {
   type: "shortcut",
-  name: "Request Time Off",
-  description: "Ask your manager for some time off",
-  workflow: "#/workflows/create_time_off",
+  name: "ぺこりーの イベント作成",
+  description: "イベントを作成して、参加者を募集できます。",
+  workflow: "#/workflows/create_event",
   inputs: {
     interactivity: {
       value: "{{data.interactivity}}",

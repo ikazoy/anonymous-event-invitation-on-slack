@@ -18,23 +18,26 @@ export const moreOperationsHandler: BlockActionHandler<
   );
   const client = SlackAPI(token);
   const userId = body.user.id;
-  // Incoming action handler invocation {
-  //   block_id: "approve-deny-buttons",
-  //   action_id: "more_operations",
-  //   type: "overflow",
-  //   selected_option: {
-  //     text: { type: "plain_text", text: "イベントをキャンセルする", emoji: true },
-  //     value: '{"operationName":"cancel-event","eventId":"182cdaa5-c261-4c53-b136-308b98609293"}'
-  //   },
-  //   action_ts: "1670167340.098432"
-  // }
   const optionValue = JSON.parse(action.selected_option.value);
   const eventId = optionValue.eventId;
   switch (optionValue.operationName) {
-    case "cancel-application":
+    case "cancel-application": {
       console.log("cancel-application");
+      const event = await Storage.getEvent(token, eventId);
+      if (event.host === userId) {
+        client.chat.postEphemeral({
+          channel: body.container.channel_id,
+          user: body.user.id,
+          token,
+          text: "主催者はイベントをキャンセルしてください",
+        });
+        return {
+          completed: false,
+        };
+      }
       await Storage.cancelApplication(token, eventId, userId);
       break;
+    }
     case "cancel-event":
       console.log("cancel-event");
       await Storage.cancelEvent(token, eventId);
@@ -74,7 +77,7 @@ export const applicationButtonHandler: BlockActionHandler<
     token,
     eventUuid,
   );
-  const ignoreDuplicate = true;
+  const ignoreDuplicate = false;
   if (!ignoreDuplicate && participants.includes(body.user.id)) {
     client.chat.postEphemeral({
       channel: body.container.channel_id,
