@@ -38,10 +38,19 @@ export const moreOperationsHandler: BlockActionHandler<
       await Storage.cancelApplication(token, eventId, userId);
       break;
     }
-    case "cancel-event":
+    case "cancel-event": {
       console.log("cancel-event");
-      await Storage.cancelEvent(token, eventId);
+      const event = await Storage.getEvent(token, eventId);
+      if (event.host === userId) {
+        client.chat.postEphemeral({
+          channel: body.container.channel_id,
+          user: body.user.id,
+          token,
+          text: "主催者以外はキャンセルできません",
+        });
+      }
       break;
+    }
     case "edit-event":
       console.log("edit-event");
       break;

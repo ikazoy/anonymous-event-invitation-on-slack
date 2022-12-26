@@ -173,8 +173,6 @@ export const applicationButton = (eventId: string) => {
         style: "primary",
         value: eventId,
       },
-      // TODO: add a block to show a modal for additional operations
-      // e.g. for a host to cancel the event, for an applicant to cancel the application
       OverFlowMenu(eventId),
     ],
   };
