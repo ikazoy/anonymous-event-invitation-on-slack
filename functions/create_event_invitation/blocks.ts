@@ -228,13 +228,13 @@ export const generateMessage = async (
     return !event.isAnonymous ||
       event.minimumNumberOfParticipants <= numberOfParticipants;
   };
-  const can = canRevealParticipants(event, numberOfParticipants);
+  const canReveal = canRevealParticipants(event, numberOfParticipants);
   const blocks = eventInvitationHeaderBlock({
     ...inputs,
     status: event.status,
-  }, can);
+  }, canReveal);
   blocks.push(blockOfNumberOfParticipants(numberOfParticipants));
-  if (can) {
+  if (canReveal) {
     blocks.push(blockOfParticipantsName(userIdsOfParticipants));
   }
   const isOccupied = event.maximumNumberOfParticipants <= numberOfParticipants;
