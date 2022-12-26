@@ -4,9 +4,13 @@ export const nowInUnixTimestampSec = () => {
   return parseInt(datetime().format("X"));
 };
 
+// TODO: make timezone configurable
 export const convertUnixTimestampSec = (
   timestamp: number,
   format = "YYYY-M-d www HH:mm",
+  timeZone = "Asia/Tokyo",
 ) => {
-  return datetime(timestamp * 1000).format(format);
+  return datetime(timestamp * 1000).toZonedTime(timeZone).format(
+    format,
+  );
 };
