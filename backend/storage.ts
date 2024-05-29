@@ -1,5 +1,4 @@
 import { SlackAPI } from "deno-slack-api/mod.ts";
-import { Application, Event } from "./interfaces.ts";
 import {
   ApplicationsDatastore,
   EventsDatastore,
@@ -9,7 +8,7 @@ export class Storage {
   static getEvent = async (
     token: string,
     id: string,
-  ): Promise<Event> => {
+  ) => {
     // console.log(
     //   `Executing getSettings(token: ${token}, channel_id: ${channel_id})`,
     // );
@@ -32,7 +31,7 @@ export class Storage {
 
   static setEvent = async (
     token: string,
-    event: Event,
+    event: Awaited<ReturnType<typeof Storage.getEvent>>,
   ) => {
     const client = SlackAPI(token, {});
     console.log(
@@ -100,7 +99,7 @@ export class Storage {
     token: string,
     eventUuid: string,
     userId: string,
-  ): Promise<Application> => {
+  ) => {
     const client = SlackAPI(token, {});
 
     const get_response = await client.apps.datastore.query<
@@ -126,7 +125,7 @@ export class Storage {
 
   static setApplication = async (
     token: string,
-    application: Application,
+    application: Awaited<ReturnType<typeof Storage.getApplication>>,
   ) => {
     console.log(
       `Executing setApplication(token: ${token}, application: ${
@@ -138,6 +137,7 @@ export class Storage {
       datastore: "applications",
       item: application,
     });
+    console.log(`setApplication put_response: ${JSON.stringify(put_response)}`);
 
     if (!put_response.ok) {
       console.log(`Error calling apps.datastore.put: ${put_response.error}`);
