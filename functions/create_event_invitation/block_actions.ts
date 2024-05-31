@@ -1,6 +1,6 @@
 import { SlackAPI } from "deno-slack-api/mod.ts";
 import { SendMessageToAdvertiseAnEvent } from "./definition.ts";
-import { BlockActionHandler } from "deno-slack-sdk/types.ts";
+import { BlockActionHandler } from "deno-slack-sdk/functions/types.ts";
 import { generateMessage } from "./blocks.ts";
 import { Storage } from "../../backend/storage.ts";
 import { nowInUnixTimestampSec } from "../../lib/datetime.ts";
@@ -41,14 +41,18 @@ export const moreOperationsHandler: BlockActionHandler<
     case "cancel-event": {
       console.log("cancel-event");
       const event = await Storage.getEvent(token, eventId);
-      if (event.host === userId) {
+      if (event.host !== userId) {
         client.chat.postEphemeral({
           channel: body.container.channel_id,
           user: body.user.id,
           token,
           text: "主催者以外はキャンセルできません",
         });
+        return {
+          completed: false,
+        };
       }
+      await Storage.cancelEvent(token, eventId);
       break;
     }
     case "edit-event":
@@ -130,9 +134,10 @@ export const applicationButtonHandler: BlockActionHandler<
   // }
 
   const applicationUuid = crypto.randomUUID();
+  const createdAt = nowInUnixTimestampSec();
   await Storage.setApplication(token, {
     id: applicationUuid,
-    createdAt: nowInUnixTimestampSec(),
+    createdAt,
     eventId: eventUuid,
     applicant: body.user.id,
     status: "accepted",

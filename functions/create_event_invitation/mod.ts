@@ -33,8 +33,9 @@ export default SlackFunction(
         0,
       minimumNumberOfParticipants: inputs.minimum_number_of_participants,
     });
+    const applicationUuid = crypto.randomUUID();
     await Storage.setApplication(token, {
-      id: crypto.randomUUID(),
+      id: applicationUuid,
       createdAt,
       eventId: eventUuid,
       applicant: inputs.host,

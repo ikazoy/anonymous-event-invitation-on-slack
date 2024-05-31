@@ -5,7 +5,6 @@
 import { APPLY_ID, DENY_ID } from "./constants.ts";
 import { convertUnixTimestampSec } from "../../lib/datetime.ts";
 import { Storage } from "../../backend/storage.ts";
-import { Event } from "../../backend/interfaces.ts";
 
 // deno-lint-ignore no-explicit-any
 export default function eventInvitationHeaderBlock(
@@ -222,7 +221,7 @@ export const generateMessage = async (
   const event = await Storage.getEvent(token, eventUuid);
   console.log(`event:${JSON.stringify(event)}`);
   const canRevealParticipants = (
-    event: Event,
+    event: Awaited<ReturnType<typeof Storage.getEvent>>,
     numberOfParticipants: number,
   ): boolean => {
     return !event.isAnonymous ||
