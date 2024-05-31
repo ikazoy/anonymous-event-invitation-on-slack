@@ -1,6 +1,6 @@
 import { SlackAPI } from "deno-slack-api/mod.ts";
 import { SendMessageToAdvertiseAnEvent } from "./definition.ts";
-import { BlockActionHandler } from "deno-slack-sdk/types.ts";
+import { BlockActionHandler } from "deno-slack-sdk/functions/types.ts";
 import { generateMessage } from "./blocks.ts";
 import { Storage } from "../../backend/storage.ts";
 import { nowInUnixTimestampSec } from "../../lib/datetime.ts";
@@ -130,9 +130,10 @@ export const applicationButtonHandler: BlockActionHandler<
   // }
 
   const applicationUuid = crypto.randomUUID();
+  const createdAt = nowInUnixTimestampSec();
   await Storage.setApplication(token, {
     id: applicationUuid,
-    createdAt: nowInUnixTimestampSec(),
+    createdAt,
     eventId: eventUuid,
     applicant: body.user.id,
     status: "accepted",
