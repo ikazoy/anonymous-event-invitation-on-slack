@@ -41,14 +41,18 @@ export const moreOperationsHandler: BlockActionHandler<
     case "cancel-event": {
       console.log("cancel-event");
       const event = await Storage.getEvent(token, eventId);
-      if (event.host === userId) {
+      if (event.host !== userId) {
         client.chat.postEphemeral({
           channel: body.container.channel_id,
           user: body.user.id,
           token,
           text: "主催者以外はキャンセルできません",
         });
+        return {
+          completed: false,
+        };
       }
+      await Storage.cancelEvent(token, eventId);
       break;
     }
     case "edit-event":
